@@ -125,6 +125,10 @@ program
     "Start with 'claude' or 'bash' shell",
     /^(claude|bash)$/i,
   )
+  .option(
+    "--no-web",
+    "Disable web UI",
+  )
   .action(async (options) => {
     console.log(chalk.blue("🚀 Starting new Claude Sandbox container..."));
 
@@ -139,6 +143,7 @@ program
     if (options.shell) {
       config.defaultShell = options.shell.toLowerCase();
     }
+    config.useWebUI = options.web !== false;
 
     const sandbox = new ClaudeSandbox(config);
     await sandbox.run();
@@ -147,8 +152,12 @@ program
 // Attach command - attach to existing container
 program
   .command("attach [container-id]")
+  .option(
+    "--no-web",
+    "Disable web UI",
+  )
   .description("Attach to an existing Claude Sandbox container")
-  .action(async (containerId) => {
+  .action(async (containerId, options) => {
     await ensureDockerConfig();
     const spinner = ora("Looking for containers...").start();
 
@@ -167,19 +176,21 @@ program
         }
       }
 
-      spinner.text = "Launching web UI...";
+      if (options.web !== false) {
+        spinner.text = "Launching web UI...";
 
-      // Always launch web UI
-      const webServer = new WebUIServer(docker);
-      const url = await webServer.start();
-      const fullUrl = `${url}?container=${targetContainerId}`;
+        // Always launch web UI
+        const webServer = new WebUIServer(docker);
+        const url = await webServer.start();
+        const fullUrl = `${url}?container=${targetContainerId}`;
 
-      spinner.succeed(chalk.green(`Web UI available at: ${fullUrl}`));
-      await webServer.openInBrowser(fullUrl);
+        spinner.succeed(chalk.green(`Web UI available at: ${fullUrl}`));
+        await webServer.openInBrowser(fullUrl);
 
-      console.log(
-        chalk.yellow("Keep this terminal open to maintain the session"),
-      );
+        console.log(
+            chalk.yellow("Keep this terminal open to maintain the session"),
+          );
+      }
 
       // Keep process running
       await new Promise(() => {});
