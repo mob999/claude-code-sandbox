@@ -145,7 +145,7 @@ export class ClaudeSandbox {
       // Start container
       const containerId = await this.containerManager.start(containerConfig);
       console.log(
-        chalk.green(`✓ Started container: ${containerId.substring(0, 12)}`),
+        chalk.green(`✓ Started container: ${containerId}`),
       );
 
       // Start monitoring for commits

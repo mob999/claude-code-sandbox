@@ -27,6 +27,7 @@ export interface SandboxConfig {
   prNumber?: string;
   dockerSocketPath?: string;
   useWebUI?: boolean;
+  envdPort?: number; // 新增：envd端口映射
 }
 
 export interface Credentials {

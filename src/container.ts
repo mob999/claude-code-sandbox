@@ -245,6 +245,12 @@ exec claude --dangerously-skip-permissions' > /start-claude.sh && \\
     // Prepare volumes
     const volumes = this.prepareVolumes(workDir, credentials);
 
+    // Prepare port bindings
+    const portBindings: any = {};
+    if (this.config.envdPort) {
+      portBindings["8000/tcp"] = [{ HostPort: this.config.envdPort.toString() }];
+    }
+
     // Create container
     const container = await this.docker.createContainer({
       Image: this.config.dockerImage || "claude-code-sandbox:latest",
@@ -256,7 +262,9 @@ exec claude --dangerously-skip-permissions' > /start-claude.sh && \\
         Binds: volumes,
         AutoRemove: false,
         NetworkMode: "bridge",
+        PortBindings: portBindings, // 新增：端口绑定
       },
+      ExposedPorts: this.config.envdPort ? { "8000/tcp": {} } : {}, // 新增：暴露端口
       WorkingDir: "/workspace",
       Cmd: ["/bin/bash", "-l"],
       AttachStdin: true,
