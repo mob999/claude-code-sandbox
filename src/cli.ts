@@ -129,6 +129,11 @@ program
     "--no-web",
     "Disable web UI",
   )
+  .option(
+    "--envd-port <port>",
+    "Map container's 8000 port to host port (default: 8000)",
+    "8000"
+  )
   .action(async (options) => {
     console.log(chalk.blue("🚀 Starting new Claude Sandbox container..."));
 
@@ -144,6 +149,7 @@ program
       config.defaultShell = options.shell.toLowerCase();
     }
     config.useWebUI = options.web !== false;
+    config.envdPort = parseInt(options.envdPort) || 8000; // 新增：设置envd端口
 
     const sandbox = new ClaudeSandbox(config);
     await sandbox.run();
